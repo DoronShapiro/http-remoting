@@ -38,6 +38,7 @@ import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -174,6 +175,13 @@ public class Java8TestServer extends Application<Configuration> {
         public Map<String, String> getNullMap() {
             return null;
         }
+
+        @Override
+        public String getValueThrowsNotFoundIfHeaderEmpty(Optional<String> maybeValue) {
+            return maybeValue
+                    .map(value -> "Value: " + value)
+                    .orElseThrow(() -> new NotFoundException("Not found"));
+        }
     }
 
     @Path("/")
@@ -268,5 +276,11 @@ public class Java8TestServer extends Application<Configuration> {
         @Path("/map")
         @Produces(MediaType.APPLICATION_JSON)
         Map<String, String> getNullMap();
+
+        @GET
+        @Path("/throwsNotFoundIfHeaderEmpty")
+        @Consumes(MediaType.TEXT_PLAIN)
+        @Produces(MediaType.TEXT_PLAIN)
+        String getValueThrowsNotFoundIfHeaderEmpty(@HeaderParam("value") Optional<String> value);
     }
 }
